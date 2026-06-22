@@ -14,7 +14,7 @@ SIN_OBJETO     = 400
  
 # Ventana — radar a la izquierda, gráfico a la derecha
 ANCHO_RADAR  = 900
-ANCHO_GRAF   = 380          # ancho del panel de trayectoria
+ANCHO_GRAF   = 380        
 ANCHO        = ANCHO_RADAR + ANCHO_GRAF
 ALTO         = 560
 RADIO_RADAR  = 400
@@ -24,11 +24,11 @@ cx = ANCHO_RADAR // 2
 cy = ALTO - 10
  
 # Panel del gráfico cartesiano
-GRAF_X  = ANCHO_RADAR + 10           # borde izquierdo del panel
-GRAF_Y  = 40                          # borde superior
-GRAF_W  = ANCHO_GRAF - 20            # ancho útil
-GRAF_H  = ALTO - 80                  # alto útil
-# Origen del gráfico (esquina inferior izquierda del área de plot)
+GRAF_X  = ANCHO_RADAR + 10           
+GRAF_Y  = 40                          
+GRAF_W  = ANCHO_GRAF - 20            
+GRAF_H  = ALTO - 80                  
+# Origen del gráfico 
 ORIG_X  = GRAF_X + 45
 ORIG_Y  = GRAF_Y + GRAF_H - 10
 PLOT_W  = GRAF_W - 55
@@ -41,14 +41,14 @@ GRAF_Y_MIN, GRAF_Y_MAX =  0,             DISTANCIA_MAX
 # =============================================
 # COLORES (Rediseño Minimalista)
 # =============================================
-NEGRO        = (5,   5,   7)       # Negro azulado profundo
-VERDE_OSCURO = (10, 20,  12)       # Fondo de radar muy tenue
-VERDE        = (0, 255, 120)       # Barrido principal brillante
-VERDE_TENUE  = (20, 45,  28)       # Líneas guía de círculos (atenuadas)
-VERDE_GRILLA = (12, 28,  18)       # Líneas de ángulos (Ultra tenues)
+NEGRO        = (5,   5,   7)       
+VERDE_OSCURO = (10, 20,  12)       # Fondo de radar 
+VERDE        = (0, 255, 120)       # Barrido principal 
+VERDE_TENUE  = (20, 45,  28)      
+VERDE_GRILLA = (12, 28,  18)       # Líneas de ángulos 
 VERDE_MID    = (0, 160,  80)       
 ROJO         = (255, 70,  70)      
-AMARILLO     = (255, 200,  0)      # Línea de predicción limpia
+AMARILLO     = (255, 200,  0)      # Línea de predicción 
 BLANCO       = (240, 240, 245)     
 GRIS         = (70,  75,  80)      
 GRIS_CLARO   = (140, 145, 150)     
@@ -57,17 +57,15 @@ PANEL_BORDE  = (25,  50,  35)
  
 # Colores por objeto (Estilo plano moderno)
 COLORES_OBJ  = [
-    (255,  80,  80),   # Rojo coral
-    (60,  165, 255),   # Azul eléctrico
-    (255, 150,  30),   # Naranja
-    (180,  90, 255),   # Violeta
-    (40,  230, 200),   # Turquesa
-    (240, 240,  80),   # Amarillo pastel
+    (255,  80,  80),   #Rojo coral
+    (60,  165, 255),   #Azul eléctrico
+    (255, 150,  30),   #Naranja
+    (180,  90, 255),   #Violeta
+    (40,  230, 200),   #Turquesa
+    (240, 240,  80),   #Amarillo pastel
 ]
  
-# =============================================
-# INICIAR PYGAME
-# =============================================
+
 pygame.init()
 pantalla = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption("Radar 2D — TEC")
@@ -93,14 +91,14 @@ except Exception as e:
 # ESTADO DEL RADAR
 # =============================================
 angulo_actual = 0
-puntos        = collections.deque(maxlen=180) # Reducido para no saturar de puntos viejos
-trail_angulos = collections.deque(maxlen=12)  # Reducido a la mitad para eliminar el eco pesado
+puntos        = collections.deque(maxlen=180) 
+trail_angulos = collections.deque(maxlen=12)  
 MAX_AGE_OBJ   = 3.5
-objetos       = {}          # bucket → dict con datos del objeto
-_color_map    = {}          # bucket → índice de color
+objetos       = {}          
+_color_map    = {}          
  
 # =============================================
-# MODO DEMO
+# DEMO
 # =============================================
 _demo_angulo = 0
 _demo_dir    = 1
@@ -170,7 +168,7 @@ def calcular_prediccion(hist):
  
     vx = (x0 - xm) / dt
     vy = (y0 - ym) / dt
-    g  = 980.0                  # Ajustado a cm/s² para precisión física real
+    g  = 980.0                  #Aqui se ajusta a cm/s2 para precisión física real
  
     pred_radar, pred_graf, pred_cm = [], [], []
     T_TOTAL, PASOS = 1.2, 30
@@ -233,7 +231,7 @@ def limpiar_objetos_viejos():
         del objetos[b]
  
 # =============================================
-# DIBUJO — RADAR
+# DIBUJO 
 # =============================================
 def dibujar_fondo():
     pantalla.fill(NEGRO)
@@ -249,7 +247,6 @@ def dibujar_circulos():
         pantalla.blit(txt, (cx + r + 4, cy - 14))
  
 def dibujar_lineas_angulo():
-    # Líneas de ángulo ultra tenues para no saturar el fondo
     for a in range(30, 151, 30):
         x, y = polar_a_pixel(a, DISTANCIA_MAX)
         pygame.draw.line(pantalla, VERDE_GRILLA, (cx, cy), (x, y), 1)
@@ -257,23 +254,21 @@ def dibujar_lineas_angulo():
         pantalla.blit(tx, (x - 10, y - 12))
  
 def dibujar_trail():
-    # Línea de desvanecimiento simple para eliminar el "eco masivo"
     trail = list(trail_angulos)
     n = len(trail)
     for i, a in enumerate(trail):
         alpha = (i + 1) / n
-        g_val = int(5 + alpha * 90) # Atenuado drásticamente
+        g_val = int(5 + alpha * 90) 
         color = (0, g_val, int(g_val * 0.2))
         x, y  = polar_a_pixel(a, DISTANCIA_MAX)
         pygame.draw.line(pantalla, color, (cx, cy), (x, y), 1)
  
 def dibujar_barrido():
-    # Línea del vector de barrido actual limpia
+
     x, y = polar_a_pixel(angulo_actual, DISTANCIA_MAX)
     pygame.draw.line(pantalla, VERDE, (cx, cy), (x, y), 2)
  
 def dibujar_puntos():
-    # Historial de barridos anteriores en formato de micro-puntos discretos
     for a, d in puntos:
         if d >= SIN_OBJETO or d < 2:
             continue
@@ -288,7 +283,7 @@ def dibujar_objetos_radar():
         a, d   = obj['angulo'], obj['dist']
         px, py = polar_a_pixel(a, d)
  
-        # Marcador limpio del objeto detectado en tiempo real
+
         pulso = int(4 + 2 * math.sin(ahora * 5))
         pygame.draw.circle(pantalla, color, (px, py), pulso + 4, 1)
         pygame.draw.circle(pantalla, color, (px, py), 4) 
@@ -312,26 +307,22 @@ def dibujar_info():
         y_off += f.size("A")[1] + 3
  
 # =============================================
-# DIBUJO — GRÁFICO CARTESIANO DE TRAYECTORIA
+# DIBUJO DEL GRÁFICO DE TRAYECTORIA
 # =============================================
 def dibujar_panel_grafico():
-    # 1. Fondo del panel derecho
     pygame.draw.rect(pantalla, PANEL_BG, (ANCHO_RADAR, 0, ANCHO_GRAF, ALTO))
     pygame.draw.line(pantalla, PANEL_BORDE, (ANCHO_RADAR, 0), (ANCHO_RADAR, ALTO), 1)
  
-    # 2. Título Analítico Principal
     titulo = fuente_g.render("ANÁLISIS DE TRAYECTORIA", True, BLANCO)
     pantalla.blit(titulo, (GRAF_X + 15, 15))
  
-    # 3. COMPACTAR GRÁFICO: Definimos límites fijos y más pequeños
-    NUEVO_ORIG_Y  = 200   # Posición de la base del gráfico (eje X)
-    NUEVO_PLOT_H  = 130   # Altura reducida del gráfico para dar espacio abajo
+    #Se define límites fijos y más pequeños
+    NUEVO_ORIG_Y  = 200   
+    NUEVO_PLOT_H  = 130   
  
-    # Dibujo del recuadro del gráfico (con altura compacta)
     pygame.draw.rect(pantalla, (6, 8, 7), (ORIG_X, NUEVO_ORIG_Y - NUEVO_PLOT_H, PLOT_W, NUEVO_PLOT_H))
     pygame.draw.rect(pantalla, PANEL_BORDE, (ORIG_X, NUEVO_ORIG_Y - NUEVO_PLOT_H, PLOT_W, NUEVO_PLOT_H), 1)
  
-    # 4. Grilla Cartesiana Adaptada a las nuevas dimensiones
     pasos_x, pasos_y = 4, 4
     for i in range(pasos_x + 1):
         gx = ORIG_X + int(i * PLOT_W / pasos_x)
@@ -347,30 +338,25 @@ def dibujar_panel_grafico():
         lbl = fuente_t.render(f"{val_y}", True, GRIS)
         pantalla.blit(lbl, (ORIG_X - lbl.get_width() - 4, gy - 5))
  
-    # Eje Central Vertical (X = 0)
+
     x0_px = ORIG_X + int((0 - GRAF_X_MIN) / (GRAF_X_MAX - GRAF_X_MIN) * PLOT_W)
     pygame.draw.line(pantalla, PANEL_BORDE, (x0_px, NUEVO_ORIG_Y - NUEVO_PLOT_H), (x0_px, NUEVO_ORIG_Y), 1)
  
-    # 5. Panel de Telemetría Inferior (Totalmente despejado)
     ahora = time.time()
     
-    # Línea divisoria justo debajo del gráfico
     Y_DIVISOR = NUEVO_ORIG_Y + 25
     pygame.draw.line(pantalla, PANEL_BORDE, (GRAF_X + 10, Y_DIVISOR), (ANCHO - 10, Y_DIVISOR), 1)
     
-    # Subtítulo para la sección de datos
     subtitulo_telemetria = fuente_g.render("TELEMETRÍA EN TIEMPO REAL", True, GRIS_CLARO)
     pantalla.blit(subtitulo_telemetria, (GRAF_X + 15, Y_DIVISOR + 10))
     
-    # Punto de partida exacto para los textos automáticos
     TELEMETRIA_BASE_Y = Y_DIVISOR + 35
  
     for idx, (b, obj) in enumerate(objetos.items()):
         if ahora - obj['tiempo'] > MAX_AGE_OBJ:
             continue
         color = color_obj(b)
- 
-        # Convertir e interpolar historial de puntos al tamaño compacto
+
         hist_g = []
         for xc, yc, ts in obj['hist']:
             yp_graf = -yc
@@ -382,13 +368,11 @@ def dibujar_panel_grafico():
         if len(pts_en_rango) >= 2:
             pygame.draw.lines(pantalla, (color[0]//2, color[1]//2, color[2]//2), False, pts_en_rango, 1)
  
-        # Punto del estado actual en el gráfico
         if hist_g:
             ux, uy = hist_g[-1]
             if ORIG_X <= ux <= ORIG_X + PLOT_W and NUEVO_ORIG_Y - NUEVO_PLOT_H <= uy <= NUEVO_ORIG_Y:
                 pygame.draw.circle(pantalla, color, (ux, uy), 4)
- 
-        # Convertir e interpolar predicción al tamaño compacto
+
         pred_g_nuevo = []
         for xp, yp_cm in obj['pred_cm']:
             px = ORIG_X + int((xp - GRAF_X_MIN) / (GRAF_X_MAX - GRAF_X_MIN) * PLOT_W)
@@ -402,23 +386,18 @@ def dibujar_panel_grafico():
                    (ORIG_X <= p2[0] <= ORIG_X + PLOT_W and NUEVO_ORIG_Y - NUEVO_PLOT_H <= p2[1] <= NUEVO_ORIG_Y):
                     pygame.draw.line(pantalla, AMARILLO, p1, p2, 1)
  
-            # Punto de impacto en el gráfico
             ep = pred_g_nuevo[-1]
             if ORIG_X <= ep[0] <= ORIG_X + PLOT_W and NUEVO_ORIG_Y - NUEVO_PLOT_H <= ep[1] <= NUEVO_ORIG_Y:
                 pygame.draw.circle(pantalla, AMARILLO, ep, 3)
  
-        # 6. TEXTO COMPACTO AUTOMÁTICO (Bajando ordenadamente)
-        # Usamos fuente_t (más pequeña) y un espaciado optimizado de 26px por bloque de objeto
         y_renglon = TELEMETRIA_BASE_Y + (idx * 26)
         
         if y_renglon < ALTO - 20:
-            # Línea 1: Datos de posición y velocidad
             lbl_id = fuente_t.render(
                 f"OBJ {idx+1} -> Dist: {obj['dist']:.0f}cm | Vel: {obj['vel']:.1f}cm/s",
                 True, color)
             pantalla.blit(lbl_id, (GRAF_X + 15, y_renglon))
             
-            # Línea 2: Predicción de impacto justo debajo, usando una sangría limpia
             if obj['pred_cm']:
                 ex_cm, ey_cm = obj['pred_cm'][-1]
                 lbl_imp = fuente_t.render(
@@ -427,7 +406,7 @@ def dibujar_panel_grafico():
                 pantalla.blit(lbl_imp, (GRAF_X + 15, y_renglon + 12))
  
 # =============================================
-# LOOP PRINCIPAL
+# LOOP 
 # =============================================
 corriendo      = True
 ultimo_demo    = time.time()
